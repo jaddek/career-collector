@@ -20,12 +20,8 @@ func init() {
 }
 
 func main() {
-
 	jobs := run()
-
 	enc := json.NewEncoder(os.Stdout)
 
 	enc.Encode(jobs)
-
-	//TODO: send to some db/queue/reciever/callback
 }
