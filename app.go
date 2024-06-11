@@ -1,11 +1,12 @@
 package main
 
 import (
-	source "jaddek/jobsearcher/sources"
 	"log"
 	"os"
 	"runtime"
 	"strings"
+
+	source "github.com/jaddek/tapnngo/sources"
 )
 
 func runDomain(source source.Collector, channel chan<- []source.JobEntity) {
