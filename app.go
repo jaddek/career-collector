@@ -2,6 +2,7 @@ package main
 
 import (
 	source "jaddek/jobsearcher/sources"
+	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -41,6 +42,11 @@ func run() []source.JobEntity {
 
 	for _, domain := range domains {
 		source := source.SourceResolver(getDomainConfig(domain))
+
+		if source == nil {
+			log.Panic("Unsupported source")
+			continue
+		}
 
 		go runDomain(source, channel)
 	}

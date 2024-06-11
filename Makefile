@@ -11,6 +11,7 @@ down: docker-down
 restart: down up
 ps: docker-ps
 logs: docker-logs
+ar: app-run
 
 docker-up:
 	$(DOCKER_COMPOSE_ENV_LOCAL) up --build --remove-orphans
@@ -29,5 +30,8 @@ docker-ps:
 
 docker-logs:
 	$(DOCKER_COMPOSE_ENV_LOCAL) logs
+
+app-run:
+	go run .
 
 .PHONY: tests

@@ -7,6 +7,7 @@ import (
 const (
 	SJS  = "sjs"
 	ASB  = "asb"
+	HNZ  = "hnz"
 	PROD = "prod"
 	DEV  = "dev"
 )
@@ -96,12 +97,32 @@ func (job *SjsJobDecorator) GetType() string {
 	return job.Job.Type.Title
 }
 
+type HNZJobDecorator struct {
+	Job *HNZJob
+}
+
+func (job *HNZJobDecorator) GetLink() string {
+	return job.Job.Link
+}
+
+func (job *HNZJobDecorator) GetTitle() string {
+	return job.Job.Title
+}
+func (job *HNZJobDecorator) GetDescription() string {
+	return ""
+}
+func (job *HNZJobDecorator) GetType() string {
+	return job.Job.Type
+}
+
 func SourceResolver(config CollectorConfig) Collector {
 	switch config.Domain {
 	case ASB:
 		return &Asb{SourceCollector{config: config}}
 	case SJS:
 		return &Sjs{SourceCollector{config: config}}
+	case HNZ:
+		return &Hnz{SourceCollector{config: config}}
 	default:
 		return nil
 	}

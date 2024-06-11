@@ -52,6 +52,8 @@ func (sjs *Sjs) getIndexCollector() *colly.Collector {
 
 		if err != nil {
 			log.Fatal(err)
+
+			return
 		}
 
 		docs := result.Documents
