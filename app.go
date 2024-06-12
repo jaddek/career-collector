@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strings"
 
-	source "github.com/jaddek/tapnngo/sources"
+	source "github.com/jaddek/tngsource"
 )
 
 func runDomain(source source.Collector, channel chan<- []source.JobEntity) {
