@@ -6,25 +6,73 @@ import (
 	"runtime"
 	"strings"
 
-	source "github.com/jaddek/tngsource"
+	"github.com/gocolly/colly/v2"
 )
 
-func runDomain(source source.Collector, channel chan<- []source.JobEntity) {
+const (
+	SJS         = "sjs"
+	ASB         = "asb"
+	HNZ         = "hnz"
+	MTUP        = "mtup"
+	PROD        = "prod"
+	DEV         = "dev"
+	METHOD_POST = "POST"
+	METHOD_GET  = "GET"
+)
+
+type ISource interface {
+	GetRequestData() []byte
+	GetRequestMethod() string
+	GetQuery() string
+	GetOnScrapedHandler(data []byte) []IEntity
+}
+
+type IJsonSource interface {
+	ISource
+	GetRequestData() []byte
+}
+
+type IHtmlSource interface {
+	ISource
+	GetContainer() string
+	GetOnHtmlHandler(e *colly.HTMLElement)
+}
+
+type ISourceCollector interface {
+	Collect()
+	GetEntities() []IEntity
+}
+
+type IEntity interface {
+	GetLink() string
+	GetTitle() string
+	GetDescription() string
+	GetType() string
+}
+
+type EventEntity struct {
+	Link        string `json:"link"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
+
+func runDomain(collector ISourceCollector, channel chan<- []IEntity) {
 	runtime.LockOSThread()
 	defer wg.Done()
 
-	source.Collect()
-	jobs := source.GetJobs()
+	collector.Collect()
+	entities := collector.GetEntities()
 
-	channel <- jobs
+	channel <- entities
 
 	runtime.UnlockOSThread()
 }
 
-func getDomainConfig(domain string) source.CollectorConfig {
+func getDomainConfig(domain string) CollectorConfig {
 	prefix := strings.ToUpper(domain)
 
-	config := source.CollectorConfig{
+	config := CollectorConfig{
 		AllowedDomains: os.Getenv(prefix + "_ALLOWED_DOMAINS"),
 		CacheDir:       os.Getenv(prefix + "_CACHE_DIR"),
 		Env:            os.Getenv("APP_ENV"),
@@ -32,36 +80,40 @@ func getDomainConfig(domain string) source.CollectorConfig {
 		Domain:         domain,
 	}
 
+	if config.Route == "" {
+		log.Printf("Route for domain %s is empty", domain)
+	}
+
 	return config
 }
 
-func run() []source.JobEntity {
+func run() []IEntity {
 	domains, workers := getDomains()
-	channel := make(chan []source.JobEntity, workers)
+	channel := make(chan []IEntity, workers)
 
 	wg.Add(workers)
 
 	for _, domain := range domains {
-		source := source.SourceResolver(getDomainConfig(domain))
+		collector := CollectorResolver(getDomainConfig(domain))
 
-		if source == nil {
+		if collector == nil {
 			log.Panic("Unsupported source")
 			continue
 		}
 
-		go runDomain(source, channel)
+		go runDomain(collector, channel)
 	}
 
 	wg.Wait()
 
 	close(channel)
 
-	jobs := make([]source.JobEntity, 0)
+	entities := make([]IEntity, 0)
 	for j := range channel {
-		jobs = append(jobs, j...)
+		entities = append(entities, j...)
 	}
 
-	return jobs
+	return entities
 }
 
 func getDomains() ([]string, int) {
@@ -69,4 +121,26 @@ func getDomains() ([]string, int) {
 	domains := strings.Split(activeDomains, ",")
 
 	return domains, len(domains)
+}
+
+func CollectorResolver(collectorConfig CollectorConfig) ISourceCollector {
+	switch collectorConfig.Domain {
+	case MTUP:
+		source := MtapMakeSource()
+
+		return MakeSourceJsonCollector(source, collectorConfig)
+	case SJS:
+		source := SjsMakeSource()
+
+		return MakeSourceJsonCollector(source, collectorConfig)
+	case HNZ:
+		source := HnzMakeSource()
+
+		return MakeSourceJsonCollector(source, collectorConfig)
+	case ASB:
+		source := AsbMakeSource()
+
+		return MakeSourcePaginationalHtmlCollector(source, collectorConfig)
+	}
+	return nil
 }

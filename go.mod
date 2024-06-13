@@ -1,11 +1,8 @@
-module github.com/jaddek/tngcollector
+module github.com/jaddek/tapnngo/collector
 
 go 1.22.2
 
-require (
-	github.com/jaddek/tngsource v0.2.0
-	github.com/joho/godotenv v1.5.1
-)
+require github.com/joho/godotenv v1.5.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
