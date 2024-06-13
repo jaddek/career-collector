@@ -20,7 +20,6 @@ func init() {
 }
 
 func main() {
-
 	jobs := run()
 	enc := json.NewEncoder(os.Stdout)
 
