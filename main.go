@@ -11,7 +11,7 @@ import (
 
 var wg sync.WaitGroup
 
-func init() {
+func env() {
 	err := godotenv.Overload(".env", ".env.local")
 
 	if err != nil {
@@ -20,6 +20,8 @@ func init() {
 }
 
 func main() {
+	env()
+
 	jobs := run()
 	enc := json.NewEncoder(os.Stdout)
 

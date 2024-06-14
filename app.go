@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"runtime"
@@ -94,10 +95,17 @@ func run() []IEntity {
 	wg.Add(workers)
 
 	for _, domain := range domains {
-		collector := CollectorResolver(getDomainConfig(domain))
+		collector, err := CollectorResolver(getDomainConfig(domain))
+
+		if err != nil {
+			log.Panic(err)
+
+			continue
+		}
 
 		if collector == nil {
 			log.Panic("Unsupported source")
+
 			continue
 		}
 
@@ -123,24 +131,25 @@ func getDomains() ([]string, int) {
 	return domains, len(domains)
 }
 
-func CollectorResolver(collectorConfig CollectorConfig) ISourceCollector {
+func CollectorResolver(collectorConfig CollectorConfig) (ISourceCollector, error) {
 	switch collectorConfig.Domain {
 	case MTUP:
 		source := MtapMakeSource()
 
-		return MakeSourceJsonCollector(source, collectorConfig)
+		return MakeSourceJsonCollector(source, collectorConfig), nil
 	case SJS:
 		source := SjsMakeSource()
 
-		return MakeSourceJsonCollector(source, collectorConfig)
+		return MakeSourceJsonCollector(source, collectorConfig), nil
 	case HNZ:
 		source := HnzMakeSource()
 
-		return MakeSourceJsonCollector(source, collectorConfig)
+		return MakeSourceJsonCollector(source, collectorConfig), nil
 	case ASB:
 		source := AsbMakeSource()
 
-		return MakeSourcePaginationalHtmlCollector(source, collectorConfig)
+		return MakeSourcePaginationalHtmlCollector(source, collectorConfig), nil
 	}
-	return nil
+
+	return nil, errors.New("unsupported source")
 }

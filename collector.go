@@ -27,7 +27,7 @@ type SourceCollector struct {
 func (source *SourceCollector) getCollector() *colly.Collector {
 	options := make([]colly.CollectorOption, 0)
 	options = append(options, colly.AllowedDomains(source.Config.AllowedDomains))
-	// options = append(options, colly.UserAgent("Google"))
+
 	if source.Config.isDev() {
 		options = append(options, colly.CacheDir(source.Config.CacheDir))
 	}
@@ -70,9 +70,9 @@ func (source *SourceJsonCollector) Collect() {
 	})
 
 	switch source.Source.GetRequestMethod() {
-	case "POST":
+	case METHOD_POST:
 		source.applyPostStrategy(collector)
-	case "GET":
+	case METHOD_GET:
 		source.applyGetStrategy(collector)
 	}
 }
@@ -82,7 +82,6 @@ func (source *SourceJsonCollector) applyGetStrategy(collector *colly.Collector) 
 }
 
 func (source *SourceJsonCollector) applyPostStrategy(collector *colly.Collector) {
-
 	collector.PostRaw(source.Config.Route, source.Source.GetRequestData())
 }
 
@@ -123,7 +122,6 @@ func (source *SourceHtmlCollector) applyGetStrategy(collector *colly.Collector) 
 }
 
 func (source *SourceHtmlCollector) applyPostStrategy(collector *colly.Collector) {
-
 	collector.PostRaw(source.Config.Route, source.Source.GetRequestData())
 }
 
@@ -132,7 +130,9 @@ type SourcePaginationalHtmlCollector struct {
 	Source IHtmlSource
 }
 
-func MakeSourcePaginationalHtmlCollector(source IHtmlSource, collectorConfig CollectorConfig) *SourcePaginationalHtmlCollector {
+func MakeSourcePaginationalHtmlCollector(
+	source IHtmlSource,
+	collectorConfig CollectorConfig) *SourcePaginationalHtmlCollector {
 	collector := &SourcePaginationalHtmlCollector{}
 	collector.Source = source
 	collector.Config = collectorConfig
@@ -141,7 +141,6 @@ func MakeSourcePaginationalHtmlCollector(source IHtmlSource, collectorConfig Col
 }
 
 func (source *SourcePaginationalHtmlCollector) Collect() {
-
 	collector := source.getCollector()
 	collector.OnHTML(".page-links a", func(e *colly.HTMLElement) {
 		collector.Visit(e.Request.AbsoluteURL(e.Attr("href")))
@@ -168,6 +167,5 @@ func (source *SourcePaginationalHtmlCollector) applyGetStrategy(collector *colly
 }
 
 func (source *SourcePaginationalHtmlCollector) applyPostStrategy(collector *colly.Collector) {
-
 	collector.PostRaw(source.Config.Route, source.Source.GetRequestData())
 }
