@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -88,7 +87,6 @@ func (hnz *Hnz) GetOnScrapedHandler(data []byte) []IEntity {
 	entities := make([]IEntity, 0)
 
 	for _, job := range parsedData.Rasp.Jobs[0].Jobs {
-		fmt.Println(job)
 		job.Link = "https://jobs.tewhatuora.govt.nz" + job.Link
 		entities = append(entities, job)
 	}
