@@ -51,13 +51,6 @@ type IEntity interface {
 	GetType() string
 }
 
-type EventEntity struct {
-	Link        string `json:"link"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-}
-
 func runDomain(collector ISourceCollector, channel chan<- []IEntity) {
 	runtime.LockOSThread()
 	defer wg.Done()

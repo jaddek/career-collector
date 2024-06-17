@@ -22,8 +22,9 @@ func env() {
 func main() {
 	env()
 
-	jobs := run()
+	entities := run()
+	entitiesNormalized := NormalizeSourceEntities(entities)
 	enc := json.NewEncoder(os.Stdout)
 
-	enc.Encode(jobs)
+	enc.Encode(entitiesNormalized)
 }
