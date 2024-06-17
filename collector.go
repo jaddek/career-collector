@@ -20,7 +20,7 @@ func (cc *CollectorConfig) isDev() bool {
 
 type SourceCollector struct {
 	Source   ISource
-	Config   CollectorConfig
+	Config   *CollectorConfig
 	Entities []IEntity
 }
 
@@ -54,7 +54,7 @@ type SourceJsonCollector struct {
 	Source IJsonSource
 }
 
-func MakeSourceJsonCollector(source IJsonSource, collectorConfig CollectorConfig) *SourceJsonCollector {
+func MakeSourceJsonCollector(source IJsonSource, collectorConfig *CollectorConfig) *SourceJsonCollector {
 	collector := &SourceJsonCollector{}
 	collector.Source = source
 	collector.Config = collectorConfig
@@ -90,7 +90,7 @@ type SourceHtmlCollector struct {
 	Source IHtmlSource
 }
 
-func MakeSourceHtmlCollector(source IHtmlSource, collectorConfig CollectorConfig) *SourceHtmlCollector {
+func MakeSourceHtmlCollector(source IHtmlSource, collectorConfig *CollectorConfig) *SourceHtmlCollector {
 	collector := &SourceHtmlCollector{}
 	collector.Source = source
 	collector.Config = collectorConfig
@@ -132,7 +132,7 @@ type SourcePaginationalHtmlCollector struct {
 
 func MakeSourcePaginationalHtmlCollector(
 	source IHtmlSource,
-	collectorConfig CollectorConfig) *SourcePaginationalHtmlCollector {
+	collectorConfig *CollectorConfig) *SourcePaginationalHtmlCollector {
 	collector := &SourcePaginationalHtmlCollector{}
 	collector.Source = source
 	collector.Config = collectorConfig

@@ -95,7 +95,8 @@ func run() []IEntity {
 	wg.Add(workers)
 
 	for _, domain := range domains {
-		collector, err := CollectorResolver(getDomainConfig(domain))
+		config := getDomainConfig(domain)
+		collector, err := CollectorResolver(&config)
 
 		if err != nil {
 			log.Panic(err)
@@ -131,7 +132,7 @@ func getDomains() ([]string, int) {
 	return domains, len(domains)
 }
 
-func CollectorResolver(collectorConfig CollectorConfig) (ISourceCollector, error) {
+func CollectorResolver(collectorConfig *CollectorConfig) (ISourceCollector, error) {
 	switch collectorConfig.Domain {
 	case MTUP:
 		source := MtapMakeSource()
